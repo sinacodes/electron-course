@@ -16,17 +16,31 @@ app.on('ready', () => {
     });
 });
 
-const getFileFromUser = () => {
+exports.getFileFromUser = () => {
     const files = dialog.showOpenDialog({
-        properties: ['openFile']
+        properties: ['openFile'],
+        filters: [
+            {
+                name: 'Markdown Files', 
+                extentions: ['md', 'mdown', 'markdown']
+            },
+            {
+                name: 'Text Files',
+                extentions: ['txt', 'text']
+            }
+        ]
     });
 
     if (!files) return;
 
     const file = files[0];
 
-    // you get a Buffer that needs to be converted to a string
-    const content = fs.readFileSync(file).toString;
+    openFile(file);
+};
 
-    console.log(files)
+const openFile = (file) => {
+    // you get a Buffer that needs to be converted to a string
+    const content = fs.readFileSync(file).toString();
+    console.log(content)
+    mainWindow.webContents.send('file-opened', file, content);
 }

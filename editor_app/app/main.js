@@ -1,13 +1,49 @@
 const fs = require('fs');
 
-const { app, BrowserWindow, dialog } = require('electron');
+const { app, BrowserWindow, dialog, Menu } = require('electron');
 
 let mainWindow = null;
+
+const template = [
+    {
+        label: 'File',
+        submenu: [
+            {
+                label: 'Open File',
+                click() {
+                    console.log('Open File');
+                }
+            }
+        ]
+    }
+];
+
+if (process.platform === 'darwin') {
+    const applicationName = "Editor";
+    template.unshift({
+        label: applicationName,
+        submenu: [
+            {
+                label: `About ${applicationName}`,
+            },
+            {
+                label: `Quit ${applicationName}`,
+                click() {
+                    app.quit;
+                }
+            }
+        ]
+    })
+}
+
+const applicationM = Menu.buildFromTemplate(template);
 
 app.on('ready', () => {
     mainWindow = new BrowserWindow({
         show: false
     });
+
+    Menu.setApplicationMenu(applicationM)
 
     mainWindow.loadFile(`${__dirname}/index.html`);
 

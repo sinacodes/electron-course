@@ -1,7 +1,7 @@
 const path = require('path');
 
 const marked = require('marked');
-const { remote, ipcRenderer } = require('electron');
+const { remote, ipcRenderer, shell } = require('electron');
 
 const mainProcess = remote.require('./main.js');
 const currentWindow = remote.getCurrentWindow();
@@ -64,6 +64,22 @@ saveMarkdownButton.addEventListener('click', () =>{
 
 saveHtmlButton.addEventListener('click', () =>{
     mainProcess.saveHtml(htmlView.innerHTML);
+});
+
+showFileButton.add('click', () => {
+    if (!filePath) {
+        return alert('No File');
+    }
+
+    shell.showItemInFolder(filePath);
+});
+
+openInDefaultButton.addEventListener('click', () => {
+    if (!filePath) {
+        return alert('No File');
+    }
+
+    shell.openItem(filePath);
 });
 
 ipcRenderer.on('file-opened', (event, file, content) => {

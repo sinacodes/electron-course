@@ -3,6 +3,8 @@ import { render } from 'react-dom';
 
 import { clipboard, ipcRenderer } from 'electron';
 
+import database from './database';
+
 const writeToClipboard = content => {
   clipboard.writeText(content);
 };
@@ -20,24 +22,30 @@ class Application extends React.Component {
     };
 
     this.addClipping = this.addClipping.bind(this);
+    this.fetchClippings = this.fetchClippings.bind(this);
     this.handleWriteToClipboard = this.handleWriteToClipboard.bind(this);
   }
 
   componentDidMount() {
     ipcRenderer.on('create-new-clipping', this.addClipping);
+
+    this.fetchClippings();
+  }
+
+  fetchClippings() {
+    database('clippings')
+      .select()
+      .then(clippings => this.setState({clippings}));
+    console.log(this.state)
   }
 
   addClipping() {
-    const { clippings } = this.state;
-
     const content = clipboard.readText();
-    const id = Date.now();
 
-    const clipping = { id, content };
+    database('clippings')
+      .insert({content})
+      .then(this.fetchClippings)
 
-    this.setState({
-      clippings: [clipping, ...clippings],
-    });
   }
 
   handleWriteToClipboard() {
